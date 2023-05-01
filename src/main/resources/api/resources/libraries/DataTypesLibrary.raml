@@ -1,0 +1,62 @@
+#%RAML 1.0 Library
+usage: This library provides message structures for Notification API
+
+types:
+  EmailNoticeType:
+    description: Represents an email notification request body
+    properties:
+      noticeType: 
+        type: string
+      fromAddress?: 
+        type: string
+      toAddress?: 
+        type: string
+      emailSubject:
+        type: string
+      emailBody: 
+        type: string
+
+  SmsNoticeType:
+    description: Represents an SMS notification request body
+    properties:
+      noticeType: 
+        type: string
+      fromNumber?: 
+        type: string
+      toNumber?: 
+        type: string
+      message: 
+        type: string
+
+  SlackNoticeType:
+    description: Represents a Slack notification request body
+    properties:
+      noticeType: 
+        type: string
+      channel: 
+        type: string
+      message: 
+        type: string
+
+  AmqNoticeType:
+    description: Represents an Anypoint MQ notification request body
+    properties:
+      noticeType: 
+        type: string
+      destination:
+        type: string
+        description: The name of the AMQ destination to publish the message to
+      message:
+        type: string
+        description: The raw message to place on the AMQ destination
+
+  NotificationType:
+    description: Represents multi channel notification request body
+    properties:
+      date:
+        type: datetime
+        description: Date and time the notification was created
+      notices:
+        type: array
+        description: The notices to send. There should be at least one notice for each channel indicated.
+        minItems: 1

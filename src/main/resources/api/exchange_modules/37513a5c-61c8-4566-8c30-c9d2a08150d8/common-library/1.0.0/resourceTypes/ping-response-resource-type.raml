@@ -1,0 +1,15 @@
+#%RAML 1.0 ResourceType
+  usage: Use this resourceType to check if the API is live and working
+  description: Checks if the API is live and working. 
+
+  uses:
+    ping: ../libraries/app-monitoring-library.raml
+
+
+  get:        
+    responses:
+      200:
+        body:
+          application/json:
+            type: ping.pingResponseBody
+            example: !include ../examples/ping-response-example.raml

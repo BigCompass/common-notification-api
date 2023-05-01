@@ -1,0 +1,101 @@
+#%RAML 1.0
+version: v1.0
+title: Big Compass Mulesoft Agility common notification process api
+mediaType: application/json
+description: |-
+    This is a spec for common notification process api, which is part of the Big Compass Mulesoft Agility Framework.
+    Author: Dipak Patel
+
+documentation:
+  - title: Overview
+    content: !include docs/Home.md
+  - title: How To Use The API?
+    content: !include docs/HowTo.md
+  - title: Error Handling
+    content: !include docs/ErrorHandling.md
+  - title: Releases
+    content: !include docs/Release.md
+
+uses:
+  commonLibrary : exchange_modules/37513a5c-61c8-4566-8c30-c9d2a08150d8/common-library/1.0.0/common-library.raml
+  dataTypes: resources/libraries/DataTypesLibrary.raml
+   
+securitySchemes:
+  basic-auth: !include exchange_modules/37513a5c-61c8-4566-8c30-c9d2a08150d8/common-library/1.0.0/securitySchemes/basic-security-scheme.raml
+  client-id: !include exchange_modules/37513a5c-61c8-4566-8c30-c9d2a08150d8/common-library/1.0.0/securitySchemes/clientid-security-scheme.raml
+  oauth: !include exchange_modules/37513a5c-61c8-4566-8c30-c9d2a08150d8/common-library/1.0.0/securitySchemes/oauth-security-scheme.raml
+
+/ping:
+  description: Checks if this API is alive on CloudHub, and returns a 200 status OK with "alive" message if the API call succeeds.
+  is: [commonLibrary.CommonErrorTrait]
+  type: commonLibrary.CommonPingRT
+
+/notification:
+  post:
+    description: endpoint to send multiple channel notification
+    is: [commonLibrary.CommonErrorTrait, commonLibrary.CommonRequestHeadersTrait]
+    securedBy: [client-id]
+    body:
+      application/json:
+        type: dataTypes.NotificationType
+    responses:
+      200:
+        body:
+          application/json:
+            example: Notifications sent.
+
+/email:
+  post:
+    description: endpoint to send an email notification
+    is: [commonLibrary.CommonErrorTrait, commonLibrary.CommonRequestHeadersTrait]
+    securedBy: [client-id]
+    body:
+      application/json:
+        type: dataTypes.EmailNoticeType
+    responses:
+      200:
+        body:
+          application/json:
+            example: Email notification sent.
+
+/sms:
+  post:
+    description: endpoint to send a text notification
+    is: [commonLibrary.CommonErrorTrait, commonLibrary.CommonRequestHeadersTrait]
+    securedBy: [client-id]
+    body:
+      application/json:
+        type: dataTypes.SmsNoticeType
+    responses:
+      200:
+        body:
+          application/json:
+            example: Text message sent.
+
+/slack:
+  post:
+    description: endpoint to send a slack notification
+    is: [commonLibrary.CommonErrorTrait, commonLibrary.CommonRequestHeadersTrait]
+    securedBy: [client-id]
+    body:
+      application/json:
+        type: dataTypes.SlackNoticeType
+    responses:
+      200:
+        body:
+          application/json:
+            example: Slack notification sent.
+
+/amq:
+  post:
+    description: endpoint to send Anypoint MQ notification
+    is: [commonLibrary.CommonErrorTrait, commonLibrary.CommonRequestHeadersTrait]
+    securedBy: [client-id]
+    body:
+      application/json:
+        type: dataTypes.AmqNoticeType
+    responses:
+      200:
+        body:
+          application/json:
+            example: Anypoint MQ notification sent.

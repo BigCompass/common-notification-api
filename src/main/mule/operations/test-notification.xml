@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<sub-flow name="raise-error" doc:id="dd277550-1384-4c4c-8e36-bc8f41aa25f6" >
+		<choice doc:name="Choice" doc:id="3a795e49-6262-48a2-9880-4f4aa7a97af7">
+			<when expression='#[attributes.queryParams.error == "true"]'>
+				<raise-error doc:name="Raise error" doc:id="bdfe2d42-a3eb-48fb-a885-8f49e20712ce" type="MULE:CONNECTIVITY" description="Error notification test" />
+			</when>
+		</choice>
+	</sub-flow>
+	<flow name="http-test-notificationFlow" doc:id="c4da8da0-04ad-4feb-a2a6-5fc2b1c5a0ac" >
+		<http:listener doc:name="Listener" doc:id="544636f1-d016-4b9d-a9e0-51d51c7fe487" config-ref="api-httpListenerConfig" path="/notificatiion"/>
+		<flow-ref doc:name="raise-error" doc:id="b9e009d8-78ec-423a-a9ed-d45c61f3f077" name="raise-error" />
+		<logger level="INFO" doc:name="Logger" doc:id="2fe4ccf9-5415-411c-9fdb-4efe454c70ea" message="#[error]"/>
+	</flow>
+	<flow name="https-test-notificationFlow" doc:id="51577bc3-f18d-4ed2-9f27-e1c4caf255ae" >
+		<http:listener doc:name="Listener" doc:id="eb5e3193-6cec-4b25-a71c-47ce05427f77" config-ref="api-httpsListenerConfig" path="/notificatiion"/>
+		<flow-ref doc:name="raise-error" doc:id="4915d355-c2e2-41bd-9004-9fdb6d8e9746" name="raise-error" />
+		<logger level="INFO" doc:name="Logger" doc:id="b1aeebe6-7922-4f7b-8cf4-2573ef3b9df4" message="#[error]" />
+	</flow>
+</mule>

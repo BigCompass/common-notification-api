@@ -1,0 +1,35 @@
+#%RAML 1.0 Library
+usage: This is common library needs which should be used across all the API's to import commonly used resources.
+
+
+types:
+  CommonErrorType: !include dataTypes/common-error-data-type.raml
+
+traits:
+  CommonAcceptTrait: !include traits/common-accept-trait.raml
+  CommonContentTypeTrait: !include traits/common-content-type-trait.raml
+  CommonRequestHeadersTrait: !include traits/common-request-headers-trait.raml
+  CommonBatchHeadersTrait: !include traits/common-batch-headers-trait.raml
+  CommonResponseHeadersTrait: !include traits/common-response-headers-trait.raml
+  CommonResponseHeaders201Trait: !include traits/common-response-headers-201-trait.raml
+  CommonErrorTrait: !include traits/common-error-trait.raml
+  400: !include traits/common-error400-trait.raml
+  401: !include traits/common-error401-trait.raml
+  404: !include traits/common-error404-trait.raml
+  405: !include traits/common-error405-trait.raml
+  406: !include traits/common-error406-trait.raml
+  408: !include traits/common-error408-trait.raml
+  415: !include traits/common-error415-trait.raml
+  500: !include traits/common-error500-trait.raml
+  501: !include traits/common-error501-trait.raml
+  503: !include traits/common-error503-trait.raml
+  
+securitySchemes:
+  OauthSecurityScheme: !include securitySchemes/oauth-security-scheme.raml
+  BasicSecurityScheme: !include securitySchemes/basic-security-scheme.raml
+  ClientIdPolicySecurityScheme: !include securitySchemes/clientid-security-scheme.raml
+
+resourceTypes:
+  CommonPingRT: !include resourceTypes/ping-response-resource-type.raml
+  CommonHealthCheckRT: !include resourceTypes/health-check-response-resource-type.raml
+  

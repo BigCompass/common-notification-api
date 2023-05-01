@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
-	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
-	xmlns:tls="http://www.mulesoft.org/schema/mule/tls" 
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
-	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+<mule xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+	xmlns:slack="http://www.mulesoft.org/schema/mule/slack"
+	xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm" 
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd 
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd 
 http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
 http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
-http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/twilio/current/mule-twilio.xsd
+http://www.mulesoft.org/schema/mule/slack http://www.mulesoft.org/schema/mule/slack/current/mule-slack.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
 
 	<configuration-properties doc:name="Common-Configuration properties" 
 		doc:id="ed1913bb-a80b-4748-9f5a-1b360c75bdb3" 
@@ -45,9 +52,9 @@ http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/m
 	</tls:context>
 
     <apikit:config name="api-config" 
-		api="resource::37513a5c-61c8-4566-8c30-c9d2a08150d8:template-api-raml:1.0.0:raml:zip:api.raml" 
-		outboundHeadersMapName="outboundHeaders" 
-		httpStatusVarName="httpStatus" />
+    	api="api.raml" 
+    	outboundHeadersMapName="outboundHeaders" 
+    	httpStatusVarName="httpStatus" />
 
 	<configuration doc:name="global-error-handler-Config" 
 		doc:id="684e7ace-4272-44b1-98b1-8e2aed311c9f"	
@@ -78,4 +85,70 @@ http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/m
 		applicationVersion="${app.version}" 
 		environment="${mule.env}" />
 
+	<vm:config name="notification-VMConfig" doc:name="VM Config" doc:id="653fa5df-2945-47d1-ac70-c80d6ce16f59" >
+		<vm:queues >
+			<vm:queue queueName="NotificationVMQ" />
+		</vm:queues>
+	</vm:config>
+
+	<email:smtp-config name="email-smtpConfig" 
+		doc:name="Email SMTP" doc:id="3efe5943-8f98-41c9-9a8f-7a2741df6585" 
+		from="#[p('notifications.email.smpt.from-address')]">
+		<email:smtp-connection 
+			host="#[p('notifications.email.smtp.host')]" 
+			port="#[p('notifications.email.smtp.port')]" 
+			user="#[p('notifications.email.smtp.user-name')]" 
+			password="${notifications.email.smtp.password}">
+			<reconnection >
+				<reconnect frequency="${reconnection.frequency}" count="${reconnection.attempts}" />
+			</reconnection>
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+<!-- 	
+	<twilio:config name="Twilio_Connector_Config" 
+		doc:name="Twilio Connector Config" 
+		doc:id="888e92a5-458e-44df-adc3-d2341f39c4c1" >
+		<twilio:account-sid-auth-token-connection 
+			username="p('notifications.sms.twilio.account-sid')" 
+			password="${notifications.sms.twilio.auth-token}" 
+			baseUri="p('notifications.sms.twilio.host')">
+			<reconnection >
+				<reconnect frequency="${reconnection.frequency}" count="${reconnection.attempts}" />
+			</reconnection>
+		</twilio:account-sid-auth-token-connection>
+	</twilio:config>
+ -->	
+	<slack:config name="Slack_Connector_Config" 
+		doc:name="Slack Connector Config" 
+		doc:id="82174ce6-6349-4ce4-827a-139a8d18e644" >
+		<slack:slack-auth-connection >
+			<slack:oauth-authorization-code 
+				consumerKey="${notifications.slack.client-id}" 
+				consumerSecret="${notifications.slack.client-secret}" 
+				authorizationUrl="${notifications.slack.auth-url}" 
+				accessTokenUrl="${notifications.slack.access-url}" 
+				scopes="chat:write" />
+			<slack:oauth-callback-config 
+				listenerConfig="api-httpsListenerConfig" 
+				callbackPath="${notifications.slack.callback-path}" 
+				authorizePath="${notifications.slack.auth-path}" 
+				externalCallbackUrl="${notifications.slack.callback-url}" />
+		</slack:slack-auth-connection>		
+	</slack:config>
+<!-- 	
+	<anypoint-mq:config name="Anypoint_MQ_Config" 
+		doc:name="Anypoint MQ Config" 
+		doc:id="413b3e9b-db5d-40ce-87d6-72b993e8d4d3" >
+		<anypoint-mq:connection url="p('notifications.anypoint-mq.host')" 
+			clientId="p('notifications.anypoint-mq.client-id')" 
+			clientSecret="p('notifications.anypoint-mq.client-secret')" >
+			<reconnection >
+				<reconnect frequency="${reconnection.frequency}" count="${reconnection.attempts}" />
+			</reconnection>
+		</anypoint-mq:connection>
+	</anypoint-mq:config>
+	 -->
 </mule>

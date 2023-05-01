@@ -1,0 +1,32 @@
+#%RAML 1.0 DataType
+  properties:
+    success:
+      type: boolean
+      required: false
+    api_name:
+      type: string
+      required: false
+    version:
+      type: string
+      required: false
+    correlation-id:
+      type: string
+      required: false
+    time_stamp: 
+      type: string
+      required: false
+    error_details:
+      type: array
+      required: false
+      items:
+        properties:
+          code:
+            type: number
+            required: false
+          reason:
+            type: string
+            required: false
+          message:
+            type: string
+            required: false
+
