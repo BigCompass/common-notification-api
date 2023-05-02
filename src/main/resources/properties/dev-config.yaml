@@ -65,7 +65,7 @@ notifications:
     access-url: "https://slack.com/api/oauth.v2.access"
     # Replace with appropriate environment
     callback-path: "/callback"
-    callback-url: "https://localhost:8082/callback"
+    callback-url: "https://common-notification-api.us-e1.cloudhub.io/callback"
     # Replace with appropriate Slack channel
     channel: "error-notification"
 

@@ -20,6 +20,8 @@ http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/t
 http://www.mulesoft.org/schema/mule/slack http://www.mulesoft.org/schema/mule/slack/current/mule-slack.xsd
 http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
 
+	<global-property doc:name="Global Property" doc:id="698195b8-e398-443e-ad77-e52cd1743b8a" name="project.version" value="1.0.0" />
+	<global-property doc:name="Global Property" doc:id="a1bfcf90-adaa-4367-8dc6-3e1bca66e7ae" name="mule.env" value="dev" />
 	<configuration-properties doc:name="Common-Configuration properties" 
 		doc:id="ed1913bb-a80b-4748-9f5a-1b360c75bdb3" 
 		file="properties/common-config.yaml" />
@@ -33,13 +35,13 @@ http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/m
 		key="YOUR_KEY_HERE" >
 		<secure-properties:encrypt algorithm="Blowfish" />
 	</secure-properties:config>
-
+<!-- 
 	<api-gateway:autodiscovery apiId="${autoDiscovery.apiId}" 
 		ignoreBasePath="true" 
 		doc:name="API Autodiscovery" 
 		doc:id="c59cde05-b7db-4e9a-9b00-fafdf5f09ec4" 
 		flowRef="api-main" />
-
+ -->
 	<tls:context name="common-selfsigned_tlsContext" 
 		doc:name="common-selfsigned_tlsContext"
 		doc:id="468555e2-4b31-4c24-a01b-197241f8351a">
@@ -107,7 +109,7 @@ http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/m
 			</email:properties>
 		</email:smtp-connection>
 	</email:smtp-config>
-<!-- 	
+<!-- 
 	<twilio:config name="Twilio_Connector_Config" 
 		doc:name="Twilio Connector Config" 
 		doc:id="888e92a5-458e-44df-adc3-d2341f39c4c1" >

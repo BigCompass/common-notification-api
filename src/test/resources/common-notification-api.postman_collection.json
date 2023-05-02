@@ -1,0 +1,117 @@
+{
+	"info": {
+		"_postman_id": "0826a5a9-33c9-4d19-99a0-c3379a8efaf6",
+		"name": "common-notification-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1221805"
+	},
+	"item": [
+		{
+			"name": "get-ping",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{host}}/api/ping",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send slack notification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "source-system",
+						"value": "source",
+						"type": "text"
+					},
+					{
+						"key": "target-system",
+						"value": "target",
+						"type": "text"
+					},
+					{
+						"key": "correlation-id",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"noticeType\": \"SlackNotice\",\r\n    \"channel\": \"error-notification\",\r\n    \"message\": \"Support hours have been increased to 24x7x365\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{host}}:{{port}}/api/slack",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"slack"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "protocol",
+			"value": "http",
+			"type": "string"
+		},
+		{
+			"key": "host",
+			"value": "localhost:8081",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "host",
+			"value": "common-notification-api.us-e1.cloudhub.io",
+			"type": "string"
+		},
+		{
+			"value": "",
+			"type": "string",
+			"disabled": true
+		}
+	]
+}
