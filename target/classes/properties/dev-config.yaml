@@ -26,7 +26,7 @@ notifications:
     # Replace with appropriate email addresses
     from-address: "dipak2@gmail.com"
     # Replace with appropriate email addresses
-    to-address: "dipak.patel@bigcompass.com"
+#    to-address: "dipak.patel@bigcompass.com"
     # SMTP Configurations
     smtp: 
       # Replace SMTP Host Name

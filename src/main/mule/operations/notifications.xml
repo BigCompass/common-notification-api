@@ -223,49 +223,72 @@ payload - "notificationType"]]></ee:set-payload>
 			</when>
 		</choice>
 	</flow> [STUDIO] -->
-<!-- [STUDIO:"notifications_send-email"]	<sub-flow name="notifications_send-email" doc:id="bd35e54a-f993-4051-89df-0d183150b04b" >
-		<logger level="INFO" doc:name="Logger" doc:id="5c5df0f7-70b5-4e59-98e8-68ed9c15210a" message='#["Email flow start"]'/>
-		<until-successful maxRetries="${retry.attempts}" doc:name="Retry Send Email" doc:id="8f32a74e-d767-48d5-8fe0-227cb4cd78d3" millisBetweenRetries="${retry.delay-millisec}" >
-			<try doc:name="Try" doc:id="7b085922-f9e2-45e4-9f35-20d17c767cb1" >
-				<set-variable value='#[payload.email.toAddress splitBy "," map($ )]' doc:name="toAddress" doc:id="7b3e5c8c-9360-442c-ae39-f29face19f47" variableName="toAddress" />
-				<logger level="DEBUG" doc:name="log to Address" doc:id="f7e6f79a-2685-4681-93e6-8e3d3959d4c1" message='#["toAddress="] #[vars.toAddress]]' />
-				<email:send doc:id="3bc92cea-ce2d-4d91-93e1-f3a54aef1fd6" config-ref="email-smtpConfig" fromAddress="#[p('notifications.email.from-address')]" subject="#[payload.email.emailSubject]" toAddresses="#[vars.toAddress]" doc:name="SMTP Email Send" >
-					<email:body contentType="text/html" >
-						<email:content ><![CDATA[#[payload.email.emailBody]]]></email:content>
+	<sub-flow name="notifications_send-email" doc:id="bd35e54a-f993-4051-89df-0d183150b04b" >
+		<logger level="INFO" doc:name="Log Payload" doc:id="5c5df0f7-70b5-4e59-98e8-68ed9c15210a" message='#[payload]'/>
+		<choice doc:name="Choice" doc:id="0649a783-f14b-4843-9fd3-ecce40ffae76" >
+			<when expression="#[p('notifications.enabled') == 'true' and p('notifications.email.enabled') == 'true']">
+				<ee:transform doc:name="Email Payload" doc:id="2d644e92-8493-46a0-a8be-2f7f221e9895" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="fromAddress" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.fromAddress default p('notifications.email.from-address')]]></ee:set-variable>
+						<ee:set-variable variableName="toAddress" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.toAddress splitBy "," map($ )]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<until-successful maxRetries="${retry.attempts}" doc:name="Retry Send Email" doc:id="8f32a74e-d767-48d5-8fe0-227cb4cd78d3" millisBetweenRetries="${retry.delay-millisec}">
+			<try doc:name="Try" doc:id="7b085922-f9e2-45e4-9f35-20d17c767cb1">
+				<email:send doc:id="3bc92cea-ce2d-4d91-93e1-f3a54aef1fd6" config-ref="email-smtpConfig" fromAddress="#[vars.fromAddress]" subject="#[payload.emailSubject]" toAddresses="#[vars.toAddress]" doc:name="SMTP Email Send">
+					<email:body contentType="text/html">
+						<email:content><![CDATA[#[payload.emailBody]]]></email:content>
 					</email:body>
 				</email:send>
-				<error-handler >
-					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a686c65c-1420-4e16-bd2f-f456c6532e9d" type="EMAIL:RETRY_EXHAUSTED, EMAIL:SEND" >
-						<set-variable value="500" doc:name="Set Http status" doc:id="02411a3f-c448-4c3d-841e-028044d2c721" variableName="httpStatus" />
-					</on-error-continue>
-				</error-handler>
-			</try>
-		</until-successful>
-		<choice doc:name="Check for SMTP response" doc:id="9c035800-858e-4ffd-be2e-1995748f0b0b" >
-			<when expression="#[vars.httpStatus != null]" >
-				<ee:transform doc:name="Error Message" doc:id="01fcbd40-b1a7-4b05-8039-d2435dbedb88" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
+				<ee:transform doc:name="Success Response" doc:id="3adc3293-fa9b-43bf-88c4-5ccf9bcf8422">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
 output application/json
-&#45;&#45;-
+---
+"Email notification sent."
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+						<error-handler>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a686c65c-1420-4e16-bd2f-f456c6532e9d" type="EMAIL:RETRY_EXHAUSTED, EMAIL:SEND">
+						<set-variable value="500" doc:name="Set Http status" doc:id="02411a3f-c448-4c3d-841e-028044d2c721" variableName="httpStatus" />
+								<ee:transform doc:name="Error Message" doc:id="01fcbd40-b1a7-4b05-8039-d2435dbedb88">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
 vars.exceptionResponse]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
+					
+</on-error-continue>
+				</error-handler>
+			</try>
+		</until-successful>
 			</when>
 			<otherwise >
-				<ee:transform doc:name="Response Map" doc:id="3adc3293-fa9b-43bf-88c4-5ccf9bcf8422" >
+				<ee:transform doc:name="Email not enabled" doc:id="5cf71f56-055b-4ef2-9c56-db3db32d78b6" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
-&#45;&#45;-
-{
-	message: "Success"
-}]]></ee:set-payload>
+---
+"Slack notification is not enabled. Please set notifications.slack.enabled property to true."
+]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
 			</otherwise>
 		</choice>
-	</sub-flow> [STUDIO] -->
+		<logger level="INFO" doc:name="Log Response" doc:id="7bef4ae0-d7b4-4796-87cc-26e7ae8ae86e" message="#[payload]" />
+	
+</sub-flow>
 <!-- [STUDIO:"notifications_send-sms"]	<sub-flow name="notifications_send-sms" doc:id="29a365e1-d07d-4e0e-ae60-a0ea97e8c4b4" >
 		<logger level="INFO" doc:name="Logger" doc:id="257a40f8-de1d-4fba-8d8e-bf025ad1708c" message='#["SMS flow start"]' />
 		<until-successful maxRetries="#[p('retry.attempts')]" doc:name="Retry Send SMS" doc:id="a100333e-3a25-4ec3-82f4-1a8f2eb118e0" millisBetweenRetries="#[p('retry.delay-millisec')]">
@@ -317,9 +340,9 @@ output application/json
 		</choice>
 	</sub-flow> [STUDIO] -->
 	<sub-flow name="notifications_send-slack" doc:id="9c90ce82-9ba7-4049-90db-d9dbfd76c8c5" >
-		<logger level="INFO" doc:name="Logger" doc:id="0fd972c4-9c15-47d0-a36a-ee44b8173f90" message='#["Slack flow start"]' />
+		<logger level="INFO" doc:name="Log Payload" doc:id="0fd972c4-9c15-47d0-a36a-ee44b8173f90" message='#[payload]' />
 		<choice doc:name="Choice" doc:id="99413321-be1f-45b3-b013-03d8db7267f7" >
-			<when expression="#[p('notifications.slack.enabled') == 'true']">
+			<when expression="#[p('notifications.enabled') == 'true' and p('notifications.slack.enabled') == 'true']">
 				<ee:transform doc:name="Slack Payload" doc:id="89930c53-e014-4e28-8324-01216a16693e">
 							<ee:message>
 								<ee:set-payload><![CDATA[%dw 2.0
@@ -369,13 +392,13 @@ vars.exceptionResponse]]></ee:set-payload>
 						<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-{
-	status: "Slack notification is not enabled. Please set notifications.slack.enabled property to true"
-}]]></ee:set-payload>
+"Slack notification is not enabled. Please set notifications.slack.enabled property to true."
+]]></ee:set-payload>
 					</ee:message>
 				</ee:transform>
 			</otherwise>
 		</choice>
+		<logger level="INFO" doc:name="Log Response" doc:id="11f24841-01b6-4f07-8f4d-4ed7891caca3" message="#[payload]"/>
 	</sub-flow>
 <!-- [STUDIO:"notifications_send-amq"]	<sub-flow name="notifications_send-amq" doc:id="1d03971f-09fd-4410-a265-d45cb46c34c7" >
 		<logger level="INFO" doc:name="Logger" doc:id="02d0ce58-7166-4e04-80ac-d0c32458e257" message='#["Anypoint MQ flow start"]' />

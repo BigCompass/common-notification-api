@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_bd35e54a_f993_4051_89df_0d183150b04b_Output_Variables_toAddress = Any
+

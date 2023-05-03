@@ -69,6 +69,50 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "send email notification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "source-system",
+						"value": "source",
+						"type": "text"
+					},
+					{
+						"key": "target-system",
+						"value": "target",
+						"type": "text"
+					},
+					{
+						"key": "correlation-id",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"noticeType\": \"EmailNotice\",\r\n    \"fromAddress\": \"admin@example.com\",\r\n    \"toAddress\": \"dipak.patel@bigcompass.com\",\r\n    \"emailSubject\": \"Error Occured\",\r\n    \"emailBody\": \"Server memory consumption at 90% for the last 5 minutes\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{host}}/api/email",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"email"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
@@ -100,13 +144,13 @@
 		{
 			"key": "host",
 			"value": "localhost:8081",
-			"type": "string",
-			"disabled": true
+			"type": "string"
 		},
 		{
 			"key": "host",
 			"value": "common-notification-api.us-e1.cloudhub.io",
-			"type": "string"
+			"type": "string",
+			"disabled": true
 		},
 		{
 			"value": "",
