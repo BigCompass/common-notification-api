@@ -25,8 +25,6 @@ notifications:
     enabled: "true"
     # Replace with appropriate email addresses
     from-address: "dipak2@gmail.com"
-    # Replace with appropriate email addresses
-#    to-address: "dipak.patel@bigcompass.com"
     # SMTP Configurations
     smtp: 
       # Replace SMTP Host Name
@@ -43,8 +41,6 @@ notifications:
     enabled: "true"
     # from-number must be the phone number provided by Twilio - Replace with appropriate Twilio phone number
     from-number: "+18776406169"
-    # to-number is any valid mobile number - Replace with appropriate mobile number
-    to-number: "+17204271946" 
     # Account configuration for Twilio SMS
     twilio:
       host: "https://api.twilio.com"
@@ -71,12 +67,11 @@ notifications:
 
   anypoint-mq:
     # Anypoint MQ notification will be send only if enabled is true here and notifications.enabled is true
-    enabled: "true"
+    enabled: "false"
     # Replace AMQ Hostname 
     host: "https://mq-us-east-1.anypoint.mulesoft.com/api/v1"
     client-id: "Client Id overridden at deploy time"
     client-secret: "Client Secret overridden at deploy time"
+    # Replace with appropriate destination
     destination: "common-notification-exchange"
-    destination-queue: "common-notification-queue"
-    dead-letter-queue: "common-notification-dl-queue"
 

@@ -109,7 +109,7 @@ http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/m
 			</email:properties>
 		</email:smtp-connection>
 	</email:smtp-config>
-<!-- 
+ 
 	<twilio:config name="Twilio_Connector_Config" 
 		doc:name="Twilio Connector Config" 
 		doc:id="888e92a5-458e-44df-adc3-d2341f39c4c1" >
@@ -122,7 +122,7 @@ http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/m
 			</reconnection>
 		</twilio:account-sid-auth-token-connection>
 	</twilio:config>
- -->	
+	
 	<slack:config name="Slack_Connector_Config" 
 		doc:name="Slack Connector Config" 
 		doc:id="82174ce6-6349-4ce4-827a-139a8d18e644" >
@@ -140,6 +140,13 @@ http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/m
 				externalCallbackUrl="${notifications.slack.callback-url}" />
 		</slack:slack-auth-connection>		
 	</slack:config>
+	<anypoint-mq:config name="Anypoint_MQ_Config" doc:name="Anypoint MQ Config" doc:id="a728a209-3039-4955-8d42-3e39a9dbaf4c" >
+		<anypoint-mq:connection url="#[p('notifications.anypoint-mq.host')]" clientId="#[p('notifications.anypoint-mq.client-id')]" clientSecret="#[p('notifications.anypoint-mq.client-secret')]">
+			<reconnection failsDeployment="true" >
+				<reconnect frequency="${reconnection.frequency}" count="${reconnection.attempts}" />
+			</reconnection>
+		</anypoint-mq:connection>
+	</anypoint-mq:config>
 <!-- 	
 	<anypoint-mq:config name="Anypoint_MQ_Config" 
 		doc:name="Anypoint MQ Config" 

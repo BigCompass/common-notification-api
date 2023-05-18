@@ -1,0 +1,10 @@
+%dw 2.0
+
+type auto_29a365e1_d07d_4e0e_ae60_a0ea97e8c4b4_Input_Payload = {
+  fromNumber?: String, 
+  noticeType: String, 
+  message: String, 
+  toNumber?: String, 
+  _?: Any
+} {"description": "Represents an SMS notification request body"}
+

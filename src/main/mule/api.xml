@@ -137,39 +137,18 @@ output application/json
 		<flow-ref doc:name="FR: mf-get-ping" doc:id="875eeae4-1f23-47e3-ad65-da829641c059" name="mf-get-ping" />
     </flow>
     <flow name="post:\amq:application\json:api-config">
-		<ee:transform>
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-"Anypoint MQ notification sent."]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+		<flow-ref doc:name="notifications_send-amq" doc:id="7cda08cf-bbfa-4273-9de4-95c46d55a082" name="notifications_send-amq"/>
     </flow>
     <flow name="post:\email:application\json:api-config">
 		<flow-ref doc:name="notifications_send-email" doc:id="56a264b8-b6a1-4d03-93f9-6cb6510c71e1" name="notifications_send-email"/>
     </flow>
     <flow name="post:\notification:application\json:api-config">
-        <ee:transform>
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-"Notifications sent."]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+		<flow-ref doc:name="notifications_send-notification" doc:id="ed76390f-be95-4169-aa3e-e2562f5d835b" name="notifications_send-notification"/>
     </flow>
     <flow name="post:\slack:application\json:api-config">
         <flow-ref doc:name="notifications_send-slack" doc:id="7a53fc8d-d40a-4791-a27d-084a4ee56ae8" name="notifications_send-slack"/>
     </flow>
     <flow name="post:\sms:application\json:api-config">
-        <ee:transform>
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-"Text message sent."]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+		<flow-ref doc:name="notifications_send-sms" doc:id="e29aca78-7f48-4642-b978-6c43880a2ea6" name="notifications_send-sms"/>
     </flow>
 </mule>
