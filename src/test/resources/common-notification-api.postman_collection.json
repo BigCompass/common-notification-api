@@ -1,0 +1,337 @@
+{
+	"info": {
+		"_postman_id": "0826a5a9-33c9-4d19-99a0-c3379a8efaf6",
+		"name": "common-notification-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1221805"
+	},
+	"item": [
+		{
+			"name": "get-ping",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{host}}/api/ping",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send slack notification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "source-system",
+						"value": "source",
+						"type": "text"
+					},
+					{
+						"key": "target-system",
+						"value": "target",
+						"type": "text"
+					},
+					{
+						"key": "correlation-id",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"noticeType\": \"SlackNotice\",\r\n    \"channel\": \"error-notification\",\r\n    \"message\": \"Support hours have been increased to 24x7x365\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{host}}:{{port}}/api/slack",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"api",
+						"slack"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send email notification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "source-system",
+						"value": "source",
+						"type": "text"
+					},
+					{
+						"key": "target-system",
+						"value": "target",
+						"type": "text"
+					},
+					{
+						"key": "correlation-id",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"noticeType\": \"EmailNotice\",\r\n    \"fromAddress\": \"admin@example.com\",\r\n    \"toAddress\": \"dipak.patel@bigcompass.com\",\r\n    \"emailSubject\": \"Error Occured\",\r\n    \"emailBody\": \"Server memory consumption at 90% for the last 5 minutes\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{host}}/api/email",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"email"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send SMS notification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "source-system",
+						"value": "source",
+						"type": "text"
+					},
+					{
+						"key": "target-system",
+						"value": "target",
+						"type": "text"
+					},
+					{
+						"key": "correlation-id",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"noticeType\": \"SmsNotice\",\r\n    \"fromNumber\": \"18885551212\",\r\n    \"toNumber\": \"19995551212\",\r\n    \"message\": \"Case #13423 has been resolved\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{host}}/api/sms",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"sms"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send MQ notification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "source-system",
+						"value": "source",
+						"type": "text"
+					},
+					{
+						"key": "target-system",
+						"value": "target",
+						"type": "text"
+					},
+					{
+						"key": "correlation-id",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"noticeType\": \"AmqNotice\",\r\n    \"destination\": \"payment-updates-exchange\",\r\n    \"message\": \"Payment received via SWIFT\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{host}}/api/amq",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"amq"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send notification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "source-system",
+						"value": "source",
+						"type": "text"
+					},
+					{
+						"key": "target-system",
+						"value": "target",
+						"type": "text"
+					},
+					{
+						"key": "correlation-id",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"date\": \"2021-12-21T16:28:54.000Z\",\r\n    \"notices\": [\r\n        {\r\n            \"noticeType\": \"SlackNotice\",\r\n            \"channel\": \"error-notification\",\r\n            \"message\": \"Support hours have been increased to 24x7x365\"\r\n        },\r\n        {\r\n            \"noticeType\": \"EmailNotice\",\r\n            \"fromAddress\": \"admin@example.com\",\r\n            \"toAddress\": \"dipak.patel@bigcompass.com\",\r\n            \"emailSubject\": \"Error Occured\",\r\n            \"emailBody\": \"Server memory consumption at 90% for the last 5 minutes\"\r\n        },\r\n        {\r\n            \"noticeType\": \"SmsNotice\",\r\n            \"fromNumber\": \"18885551212\",\r\n            \"toNumber\": \"19995551212\",\r\n            \"message\": \"Case #13423 has been resolved\"\r\n        },\r\n        {\r\n            \"noticeType\": \"AmqNotice\",\r\n            \"destination\": \"payment-updates-exchange\",\r\n            \"message\": \"Payment received via SWIFT\"\r\n        }\r\n    ]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{host}}/api/notification",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"notification"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send notification2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "source-system",
+						"value": "source",
+						"type": "text"
+					},
+					{
+						"key": "target-system",
+						"value": "target",
+						"type": "text"
+					},
+					{
+						"key": "correlation-id",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"date\": \"2021-12-21T16:28:54.000Z\",\r\n    \"notices\": [\r\n        {\r\n            \"noticeType\": \"SlackNotice\",\r\n            \"channel\": \"error-notification\",\r\n            \"message\": \"Support hours have been increased to 24x7x365\"\r\n        },\r\n        {\r\n            \"noticeType\": \"SmsNotice\",\r\n            \"fromNumber\": \"18885551212\",\r\n            \"toNumber\": \"19995551212\",\r\n            \"message\": \"Case #13423 has been resolved\"\r\n        },\r\n        {\r\n            \"noticeType\": \"AmqNotice\",\r\n            \"destination\": \"payment-updates-exchange\",\r\n            \"message\": \"Payment received via SWIFT\"\r\n        }\r\n    ]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{protocol}}://{{host}}/api/notification",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"notification"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "protocol",
+			"value": "http",
+			"type": "string"
+		},
+		{
+			"key": "host",
+			"value": "localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "host",
+			"value": "common-notification-api.us-e1.cloudhub.io",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"value": "",
+			"type": "string",
+			"disabled": true
+		}
+	]
+}

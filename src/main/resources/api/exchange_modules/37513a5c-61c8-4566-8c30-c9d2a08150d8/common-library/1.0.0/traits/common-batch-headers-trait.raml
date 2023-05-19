@@ -1,0 +1,33 @@
+#%RAML 1.0 Trait
+
+headers:
+  source-system:
+    description: specifies source system
+    type:  string
+    required: true
+    example: mfcs      
+  correlation-id:
+    description: specifies correlation between flows
+    type:  string
+    required: true
+    example: 1b611860-9aa1-458f-9789-0a30b0630c51
+  start-index:
+    description: This field is for batch Interfaces/transactions to identify the Start index from the group of records published
+    type: number
+    required: false    
+  end-index:
+    description: This field is for batch Interfaces/ transactions to identify the End index from the group of records published
+    type: number
+    required: false
+  total-count:
+    description: This field is for batch Interfaces/ transactions to identify the total count of the records in the batch.
+    type: number
+    required: false
+  has-more-records:
+    description:  This field is to identify there are more records from the batch of transactions
+    type: boolean
+    required: false
+    default: false
+    example: true    
+
+  

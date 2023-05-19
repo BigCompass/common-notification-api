@@ -1,0 +1,14 @@
+#%RAML 1.0 ResourceType
+  usage: Use this resourceType to check if the API is live and working
+  description: Checks if the dependent systems are available.
+
+  uses:
+    healthCheck: ../libraries/app-monitoring-library.raml
+
+  get:        
+    responses:
+      200:
+        body:
+          application/json:
+            type: healthCheck.healthCheckResponseBody
+            example: !include ../examples/health-check-response-example.raml

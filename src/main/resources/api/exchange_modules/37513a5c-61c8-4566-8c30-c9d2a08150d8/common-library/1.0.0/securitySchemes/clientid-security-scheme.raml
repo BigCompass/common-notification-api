@@ -1,0 +1,16 @@
+#%RAML 1.0 SecurityScheme
+type: x-clientsecretpolicy
+description: clientid enforcement Security Scheme
+describedBy:
+  headers:
+    client_id:
+      type: string
+      required: true
+      description: client id provided by API manager for each client
+    client_secret:
+      type: string
+      required : true
+      description: client secret provided by API manager for each client    
+  responses:
+    401:
+      description: Authentication denied or Invalid Credentials

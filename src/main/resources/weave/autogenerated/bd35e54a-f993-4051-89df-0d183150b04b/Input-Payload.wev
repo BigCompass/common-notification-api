@@ -1,0 +1,11 @@
+%dw 2.0
+
+type auto_bd35e54a_f993_4051_89df_0d183150b04b_Input_Payload = {
+  emailBody: String, 
+  noticeType: String, 
+  fromAddress?: String, 
+  toAddress?: String, 
+  emailSubject: String, 
+  _?: Any
+} {"description": "Represents an email notification request body"}
+

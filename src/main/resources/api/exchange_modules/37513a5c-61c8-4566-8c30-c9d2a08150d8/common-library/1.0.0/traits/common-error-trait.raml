@@ -1,0 +1,61 @@
+#%RAML 1.0 Trait
+
+responses:
+  400:
+    body:
+      application/json:
+        type: CommonErrorType
+        example: !include ../examples/error400-example.raml
+  401:
+    body:
+      application/json:
+        type: CommonErrorType
+        example: !include ../examples/error401-example.raml
+
+  404:
+    body:
+      application/json:
+        type: CommonErrorType
+        example: !include ../examples/error404-example.raml
+  
+  405:
+    body:
+      application/json:
+        type: CommonErrorType
+        example: !include ../examples/error405-example.raml
+
+  406:
+    body:
+      application/json:
+        type: CommonErrorType
+        example: !include ../examples/error406-example.raml
+
+  408:
+    body:
+      application/json:
+        type: CommonErrorType
+        example: !include ../examples/error408-example.raml
+
+  415:
+    body:
+      application/json:
+        type: CommonErrorType
+        example: !include ../examples/error415-example.raml
+
+  500:
+    body:
+      application/json:
+        type: CommonErrorType
+        example: !include ../examples/error500-example.raml
+
+  501:
+    body:
+      application/json:
+        type: CommonErrorType
+        example: !include ../examples/error501-example.raml
+         
+  503:
+    body:
+      application/json:
+        type: CommonErrorType
+        example: !include ../examples/error503-example.raml

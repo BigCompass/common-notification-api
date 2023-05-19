@@ -1,0 +1,20 @@
+#%RAML 1.0 Trait
+
+responses:
+  200:
+    headers:
+      source-system:
+        description: specifies source system
+        type:  string
+        required: true
+        example: mfcs      
+      correlation-id:
+        description: specifies correlation between flows
+        type:  string
+        required: true
+        example: 1b611860-9aa1-458f-9789-0a30b0630c51
+      target-system:
+        description: specifies target system
+        type:  string
+        required: true
+        example: GCP      

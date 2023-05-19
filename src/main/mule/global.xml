@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+	xmlns:slack="http://www.mulesoft.org/schema/mule/slack"
+	xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm" 
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd 
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/twilio/current/mule-twilio.xsd
+http://www.mulesoft.org/schema/mule/slack http://www.mulesoft.org/schema/mule/slack/current/mule-slack.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
+
+	<global-property doc:name="Global Property" doc:id="698195b8-e398-443e-ad77-e52cd1743b8a" name="project.version" value="1.0.0" />
+	<global-property doc:name="Global Property" doc:id="a1bfcf90-adaa-4367-8dc6-3e1bca66e7ae" name="mule.env" value="dev" />
+	<configuration-properties doc:name="Common-Configuration properties" 
+		doc:id="ed1913bb-a80b-4748-9f5a-1b360c75bdb3" 
+		file="properties/common-config.yaml" />
+	<configuration-properties doc:name="Configuration properties" 
+		doc:id="44018fe0-9573-4de4-80c8-e6235bda129c" 
+		file="properties/${mule.env}-config.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" 
+		doc:name="Secure Properties Config" 
+		doc:id="346ed095-ce85-477f-bb0e-f1ef66c43969" 
+		file="properties/${mule.env}-secure-config.yaml" 
+		key="YOUR_KEY_HERE" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+<!-- 
+	<api-gateway:autodiscovery apiId="${autoDiscovery.apiId}" 
+		ignoreBasePath="true" 
+		doc:name="API Autodiscovery" 
+		doc:id="c59cde05-b7db-4e9a-9b00-fafdf5f09ec4" 
+		flowRef="api-main" />
+ -->
+	<tls:context name="common-selfsigned_tlsContext" 
+		doc:name="common-selfsigned_tlsContext"
+		doc:id="468555e2-4b31-4c24-a01b-197241f8351a">
+		<tls:trust-store insecure="true"/>
+		<tls:key-store type="jks" 
+			alias="${keystore.alias}" 
+			keyPassword="${keystore.key-pass}" 
+			password="${keystore.password}" 
+			path="${keystore.path}"/>
+	</tls:context>
+
+    <apikit:config name="api-config" 
+    	api="api.raml" 
+    	outboundHeadersMapName="outboundHeaders" 
+    	httpStatusVarName="httpStatus" />
+
+	<configuration doc:name="global-error-handler-Config" 
+		doc:id="684e7ace-4272-44b1-98b1-8e2aed311c9f"	
+		defaultErrorHandler-ref="global-error-handler" />
+
+	<http:listener-config name="api-httpListenerConfig"
+		doc:name="HTTP Listener config"
+		doc:id="8bb27407-701e-4106-be6f-dd934a3e923c">
+        <http:listener-connection host="${http.host}" 
+			port="${http.port}" 
+			readTimeout="${read-timeout}"/>
+    </http:listener-config>
+
+	<http:listener-config name="api-httpsListenerConfig"
+		doc:name="HTTPS Listener config"
+		doc:id="e2efa868-cd72-4666-a79e-30ebeb7ccaf3">
+        <http:listener-connection host="${https.host}" 
+			port="${https.port}" 
+			protocol="HTTPS" 
+			tlsContext="common-selfsigned_tlsContext"
+			readTimeout="${read-timeout}"/>
+    </http:listener-config>
+
+	<json-logger:config name="JSON_Logger_Config" 
+		doc:name="JSON Logger Config" 
+		doc:id="e7c5d11c-a1e0-46a6-bb74-311aa8c8d766" 
+		applicationName="${app.name}" 
+		applicationVersion="${app.version}" 
+		environment="${mule.env}" />
+
+	<vm:config name="notification-VMConfig" doc:name="VM Config" doc:id="653fa5df-2945-47d1-ac70-c80d6ce16f59" >
+		<vm:queues >
+			<vm:queue queueName="NotificationVMQ" />
+		</vm:queues>
+	</vm:config>
+
+	<email:smtp-config name="email-smtpConfig" 
+		doc:name="Email SMTP" doc:id="3efe5943-8f98-41c9-9a8f-7a2741df6585" 
+		from="#[p('notifications.email.smpt.from-address')]">
+		<email:smtp-connection 
+			host="#[p('notifications.email.smtp.host')]" 
+			port="#[p('notifications.email.smtp.port')]" 
+			user="#[p('notifications.email.smtp.user-name')]" 
+			password="${notifications.email.smtp.password}">
+			<reconnection >
+				<reconnect frequency="${reconnection.frequency}" count="${reconnection.attempts}" />
+			</reconnection>
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+ 
+	<twilio:config name="Twilio_Connector_Config" 
+		doc:name="Twilio Connector Config" 
+		doc:id="888e92a5-458e-44df-adc3-d2341f39c4c1" >
+		<twilio:account-sid-auth-token-connection 
+			username="p('notifications.sms.twilio.account-sid')" 
+			password="${notifications.sms.twilio.auth-token}" 
+			baseUri="p('notifications.sms.twilio.host')">
+			<reconnection >
+				<reconnect frequency="${reconnection.frequency}" count="${reconnection.attempts}" />
+			</reconnection>
+		</twilio:account-sid-auth-token-connection>
+	</twilio:config>
+	
+	<slack:config name="Slack_Connector_Config" 
+		doc:name="Slack Connector Config" 
+		doc:id="82174ce6-6349-4ce4-827a-139a8d18e644" >
+		<slack:slack-auth-connection >
+			<slack:oauth-authorization-code 
+				consumerKey="${notifications.slack.client-id}" 
+				consumerSecret="${notifications.slack.client-secret}" 
+				authorizationUrl="${notifications.slack.auth-url}" 
+				accessTokenUrl="${notifications.slack.access-url}" 
+				scopes="chat:write" />
+			<slack:oauth-callback-config 
+				listenerConfig="api-httpsListenerConfig" 
+				callbackPath="${notifications.slack.callback-path}" 
+				authorizePath="${notifications.slack.auth-path}" 
+				externalCallbackUrl="${notifications.slack.callback-url}" />
+		</slack:slack-auth-connection>		
+	</slack:config>
+	<anypoint-mq:config name="Anypoint_MQ_Config" doc:name="Anypoint MQ Config" doc:id="a728a209-3039-4955-8d42-3e39a9dbaf4c" >
+		<anypoint-mq:connection url="#[p('notifications.anypoint-mq.host')]" clientId="#[p('notifications.anypoint-mq.client-id')]" clientSecret="#[p('notifications.anypoint-mq.client-secret')]">
+			<reconnection failsDeployment="true" >
+				<reconnect frequency="${reconnection.frequency}" count="${reconnection.attempts}" />
+			</reconnection>
+		</anypoint-mq:connection>
+	</anypoint-mq:config>
+<!-- 	
+	<anypoint-mq:config name="Anypoint_MQ_Config" 
+		doc:name="Anypoint MQ Config" 
+		doc:id="413b3e9b-db5d-40ce-87d6-72b993e8d4d3" >
+		<anypoint-mq:connection url="p('notifications.anypoint-mq.host')" 
+			clientId="p('notifications.anypoint-mq.client-id')" 
+			clientSecret="p('notifications.anypoint-mq.client-secret')" >
+			<reconnection >
+				<reconnect frequency="${reconnection.frequency}" count="${reconnection.attempts}" />
+			</reconnection>
+		</anypoint-mq:connection>
+	</anypoint-mq:config>
+	 -->
+</mule>

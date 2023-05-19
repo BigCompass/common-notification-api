@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule 
+	xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq" 
+	xmlns:slack="http://www.mulesoft.org/schema/mule/slack"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio" 
+	xmlns:email="http://www.mulesoft.org/schema/mule/email" 
+	xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/twilio/current/mule-twilio.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/slack http://www.mulesoft.org/schema/mule/slack/current/mule-slack.xsd
+http://www.mulesoft.org/schema/mule/anypoint-mq http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd">
+	<sub-flow name="notifications_send-email" doc:id="bd35e54a-f993-4051-89df-0d183150b04b" >
+		<logger level="INFO" doc:name="Log Payload" doc:id="5c5df0f7-70b5-4e59-98e8-68ed9c15210a" message='#[payload]'/>
+		<choice doc:name="Choice" doc:id="0649a783-f14b-4843-9fd3-ecce40ffae76" >
+			<when expression="#[p('notifications.enabled') == 'true' and p('notifications.email.enabled') == 'true']">
+				<ee:transform doc:name="Email Payload" doc:id="2d644e92-8493-46a0-a8be-2f7f221e9895" >
+					<ee:message >
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="fromAddress" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.fromAddress default p('notifications.email.from-address')]]></ee:set-variable>
+						<ee:set-variable variableName="toAddress" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.toAddress splitBy "," map($ )]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<until-successful maxRetries="${retry.attempts}" doc:name="Retry Send Email" doc:id="8f32a74e-d767-48d5-8fe0-227cb4cd78d3" millisBetweenRetries="${retry.delay-millisec}">
+			<try doc:name="Try" doc:id="7b085922-f9e2-45e4-9f35-20d17c767cb1">
+				<email:send doc:id="3bc92cea-ce2d-4d91-93e1-f3a54aef1fd6" config-ref="email-smtpConfig" fromAddress="#[vars.fromAddress]" subject="#[payload.emailSubject]" toAddresses="#[vars.toAddress]" doc:name="SMTP Email Send">
+					<email:body contentType="text/html">
+						<email:content><![CDATA[#[payload.emailBody]]]></email:content>
+					</email:body>
+				</email:send>
+				<ee:transform doc:name="Success Response" doc:id="3adc3293-fa9b-43bf-88c4-5ccf9bcf8422">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"Email notification sent."
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+						<error-handler>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a686c65c-1420-4e16-bd2f-f456c6532e9d" type="EMAIL:RETRY_EXHAUSTED, EMAIL:SEND">
+						<set-variable value="500" doc:name="Set Http status" doc:id="02411a3f-c448-4c3d-841e-028044d2c721" variableName="httpStatus" />
+								<ee:transform doc:name="Error Message" doc:id="01fcbd40-b1a7-4b05-8039-d2435dbedb88">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+error.description]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+					
+</on-error-continue>
+				</error-handler>
+			</try>
+		</until-successful>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Email not enabled" doc:id="5cf71f56-055b-4ef2-9c56-db3db32d78b6" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Slack notification is not enabled. Please set notifications.email.enabled property to true."
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Log Response" doc:id="7bef4ae0-d7b4-4796-87cc-26e7ae8ae86e" message="#[payload]" />
+	
+</sub-flow>
+	<sub-flow name="notifications_send-sms" doc:id="29a365e1-d07d-4e0e-ae60-a0ea97e8c4b4" >
+		<logger level="INFO" doc:name="Log Payload" doc:id="257a40f8-de1d-4fba-8d8e-bf025ad1708c" message='#[payload]' />
+		<choice doc:name="Choice" doc:id="7a79c509-441b-42e1-ba40-18487815017e" >
+			<when expression="#[p('notifications.enabled') == 'true' and p('notifications.sms.enabled') == 'true']">
+				<ee:transform doc:name="Twilo Send SMS Payload" doc:id="fcb14842-2ff3-4d99-a1d2-516b7f3f9fa7">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+    Body: payload.message,
+    From: payload.fromNumber default p('notifications.sms.from-number'),
+    To: payload.toNumber
+} ]]></ee:set-payload>
+			</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="sid" ><![CDATA[%dw 2.0
+output application/java
+---
+p('notifications.sms.twilio.account-sid')]]></ee:set-variable>
+					</ee:variables>
+		
+</ee:transform>
+				<until-successful maxRetries="#[p('retry.attempts')]" doc:name="Retry Send SMS" doc:id="a100333e-3a25-4ec3-82f4-1a8f2eb118e0" millisBetweenRetries="#[p('retry.delay-millisec')]">
+			<try doc:name="Try" doc:id="f35fa512-14b3-421e-b1c0-6b34486ba1bb">
+				<twilio:create20100401-accounts-messagesjson-by-account-sid doc:name="Create Message" doc:id="d46e4ede-b049-4062-8841-13f05d7f06dc" config-ref="Twilio_Connector_Config" accountSid="#[vars.sid]"/>
+			<ee:transform doc:name="Success Response" doc:id="108b91da-cf24-4dad-bac6-3362b93510aa">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"SMS notification sent."]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+						<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="066e7e6d-3471-4784-9fb7-371fbd8b1bd7">
+					<set-variable value="500" doc:name="Set Http status" doc:id="ff1f2d06-11ba-4fe7-8707-cfa5050bcb5f" variableName="httpStatus" />
+								<ee:transform doc:name="Error Message" doc:id="e6bf8da0-f9e1-4ea3-aae3-4865c7138a46">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+error.description]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				
+</on-error-continue>
+			</error-handler>
+		</try>
+		</until-successful>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="SMS not enabled" doc:id="765eb6d1-4236-44a9-b301-f5d3d9380749" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"SMS notification is not enabled. Please set notifications.sms.enabled property to true."
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Log Response" doc:id="2f3b6c8c-3d58-40d7-a120-73edafa92390" message="#[payload]" />
+	
+</sub-flow>
+	<sub-flow name="notifications_send-slack" doc:id="9c90ce82-9ba7-4049-90db-d9dbfd76c8c5" >
+		<logger level="INFO" doc:name="Log Payload" doc:id="0fd972c4-9c15-47d0-a36a-ee44b8173f90" message='#[payload]' />
+		<choice doc:name="Choice" doc:id="99413321-be1f-45b3-b013-03d8db7267f7" >
+			<when expression="#[p('notifications.enabled') == 'true' and p('notifications.slack.enabled') == 'true']">
+				<ee:transform doc:name="Slack Payload" doc:id="89930c53-e014-4e28-8324-01216a16693e">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"channel": payload.channel default p('notifications.slack.channel'),
+	"text": payload.message
+}
+]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+				<until-successful maxRetries="#[p('retry.attempts')]" doc:name="Retry Send Slack" doc:id="c55ecfcd-28fe-4a6e-9ee4-fe68dbc1b35f" millisBetweenRetries="#[p('retry.delay-millisec')]">
+			<try doc:name="Try" doc:id="01ae7e1e-8e27-4eb4-99b2-29b1623e9597">
+								<slack:create-chatpost-message doc:name="Send Message" doc:id="b5b0dc8a-a57e-4a2e-854d-23894945b771" config-ref="Slack_Connector_Config" />
+						<choice doc:name="Check for Slack staus" doc:id="b0457efa-ab7f-4485-99e4-acaa6b823054">
+					<when expression="#[payload.ok]">
+						<ee:transform doc:name="Success Response" doc:id="7c2ee3c0-e795-48aa-ad5e-899784d89c12">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"Slack notification sent."]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</when>
+		</choice>
+						<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="431ac61f-fd32-4fec-bd9a-c80e325bd7ee" type="HTTP:BAD_REQUEST, HTTP:CLIENT_SECURITY, HTTP:CONNECTIVITY, HTTP:FORBIDDEN, HTTP:METHOD_NOT_ALLOWED, HTTP:NOT_ACCEPTABLE, HTTP:NOT_FOUND, HTTP:PARSING, HTTP:RETRY_EXHAUSTED, HTTP:SECURITY, HTTP:UNAUTHORIZED, HTTP:UNSUPPORTED_MEDIA_TYPE">
+					<set-variable value="500" doc:name="Set Http status" doc:id="edc048f3-8bca-4dc0-9429-77db79112626" variableName="httpStatus" />
+								<ee:transform doc:name="Error Message" doc:id="9b04b7e6-c76b-4a4d-bd05-16434973f189">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+error.description]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		</until-successful>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Slack not enabled" doc:id="9a42e51c-cc96-4ca2-ba63-1ef45b12284a" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Slack notification is not enabled. Please set notifications.slack.enabled property to true."
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Log Response" doc:id="11f24841-01b6-4f07-8f4d-4ed7891caca3" message="#[payload]"/>
+	</sub-flow>
+	<sub-flow name="notifications_send-amq" doc:id="1d03971f-09fd-4410-a265-d45cb46c34c7" >
+		<logger level="INFO" doc:name="Log Payload" doc:id="02d0ce58-7166-4e04-80ac-d0c32458e257" message='#[payload]' />
+		<choice doc:name="Choice" doc:id="6a7fbf12-513a-461c-a360-cf0cfeec5e8d" >
+			<when expression="#[p('notifications.enabled') == 'true' and p('notifications.anypoint-mq.enabled') == 'true']">
+				<try doc:name="Try" doc:id="fd357454-f836-4315-96c0-0a9cc62c3d82">
+
+<ee:transform doc:name="AMQ Payload" doc:id="a39e43ae-3375-4094-bf4b-301d5e5d7419">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload.message]]></ee:set-payload>
+			</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="destination" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.destination default p('notifications.anypoint-mq.destination')]]></ee:set-variable>
+						</ee:variables>
+		
+</ee:transform>
+		 
+		<anypoint-mq:publish doc:name="Publish to a destination" doc:id="4f4504a0-cc4b-43da-b056-418540dce6ec" destination="#[vars.destination]" config-ref="Anypoint_MQ_Config"/>
+			<ee:transform doc:name="Success Response" doc:id="470ef205-88d0-4a3a-aaf5-fc7c1e5621de" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Anypoint MQ notification sent."]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="317e6ee5-c8db-4071-89b7-151937661841">
+					<set-variable value="500" doc:name="Set Http status" doc:id="788a2374-ae25-4f49-96b0-84b74bc453fb" variableName="httpStatus" />
+							<ee:transform doc:name="Error Message" doc:id="0eeb9497-4880-4089-a2ac-92760cc0c719" >
+								<ee:message >
+									<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+error.description]]></ee:set-payload>
+								</ee:message>
+							</ee:transform>
+				
+</on-error-continue>
+			</error-handler>
+			
+		</try>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Anypoint MQ notification enabled" doc:id="4d85a4e8-1d82-4069-b249-56ffeb806ff2" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Anypoint MQ notification is not enabled. Please set notifications.anypoint-mq.enabled property to true."
+]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Log Response" doc:id="86d401c7-64d9-4187-be75-21e406c0d686" message="#[payload]" />
+		
+		
+	
+</sub-flow>
+	<sub-flow name="notifications_send-notification" doc:id="69e8f720-32af-4612-8c32-7aa256ead387" >
+		<logger level="INFO" doc:name="Log Payload" doc:id="9d517541-b337-4957-9c0b-b5fdb9ee652b" message="#[payload]" />
+		<set-variable value="#[payload]" doc:name="Save Payload" doc:id="6ef662a8-6e73-4889-a38e-807bb26fd5bb" variableName="origPayload"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="8ee2df6d-b573-4e47-993d-c07ec07ef3db" >
+			<route >
+				<choice doc:name="Choice" doc:id="00e22551-adaa-4ae9-abb9-8fdad1b8b604">
+				<when expression='#[indexOf(payload.notices.noticeType, "SlackNotice") &gt;= 0]'>
+					<set-payload value='#[payload.notices[indexOf(payload.notices.noticeType, "SlackNotice")]]' doc:name="Set Slack Payload" doc:id="aa339107-c7a2-4f36-9351-f7920264f6f8" />
+						<flow-ref doc:name="notifications_send-slack" doc:id="e3c41f63-ca0a-48d5-b805-663c64fccc8f" name="notifications_send-slack" target="slackResponse"/>
+				</when>
+			</choice>
+			</route>
+			<route >
+				<choice doc:name="Choice" doc:id="4ebb99d9-7701-4791-9b24-94b50b152f8d">
+			<when expression='#[indexOf(payload.notices.noticeType, "EmailNotice") &gt;= 0]'>
+						<set-payload value='#[payload.notices[indexOf(payload.notices.noticeType, "EmailNotice")]]' doc:name="Set Email Payload" doc:id="fb2f517f-2dcd-4090-adf8-4c6571c27c95" />
+						<flow-ref doc:name="notifications_send-email" doc:id="7153f315-33cd-4f34-9be8-739a3f89beab" name="notifications_send-email" target="emailResponse"/>
+					</when>
+		</choice>
+			</route>
+			<route >
+				<choice doc:name="Choice" doc:id="deeea169-9e7f-4cf4-911d-64d9fdc77078">
+			<when expression='#[indexOf(payload.notices.noticeType, "SmsNotice") &gt;= 0]'>
+				<set-payload value='#[payload.notices[indexOf(payload.notices.noticeType, "SmsNotice")]]' doc:name="Set Sms Payload" doc:id="3d5ccb4b-9771-4a03-96de-42ecc6cd20b1" />
+				<flow-ref doc:name="notifications_send-sms" doc:id="5e340870-50c7-403d-b5af-cb8d4cdfb9c3" name="notifications_send-sms" target="smsResponse" />
+			</when>
+		</choice>
+			</route>
+			<route >
+				<choice doc:name="Choice" doc:id="041e8c72-c29e-4cfb-adfd-0e73124ee10b">
+			<when expression='#[indexOf(payload.notices.noticeType, "AmqNotice") &gt;= 0]'>
+				<set-payload value='#[payload.notices[indexOf(payload.notices.noticeType, "AmqNotice")]]' doc:name="Set Anypoint MQ Payload" doc:id="ce0702d7-7c55-491f-9a13-fd77be5131d8" />
+				<flow-ref doc:name="notifications_send-amq" doc:id="ea5cdb58-762f-4c53-9381-64ec7a9048cf" name="notifications_send-amq" target="amqResponse" />
+			</when>
+		</choice>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Create Response" doc:id="c20c064d-8d32-46d2-94fc-0dabd27fc38e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	(("Slack": vars.slackResponse) if (indexOf(vars.origPayload.notices.noticeType, "SlackNotice") >= 0)),
+	(("Email": vars.emailResponse) if (indexOf(vars.origPayload.notices.noticeType, "EmailNotice") >= 0)),
+	(("SMS": vars.smsResponse) if (indexOf(vars.origPayload.notices.noticeType, "SmsNotice") >= 0)),
+	(("Anypoint MQ": vars.amqResponse) if (indexOf(vars.origPayload.notices.noticeType, "AmqNotice") >= 0)),	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log Response" doc:id="214c1458-2e6c-4813-b323-df351e682d41" message="#[payload]" />
+	</sub-flow>
+
+
+</mule>

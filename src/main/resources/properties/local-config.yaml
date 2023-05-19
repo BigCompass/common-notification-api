@@ -1,0 +1,77 @@
+autoDiscovery:
+  apiId: "11"
+
+#JSON Logger Configuration  
+logger:
+  category: "com.ccm.mule.events"
+  disabledFields: ""
+  level:
+    scheduledProc: "INFO"
+    summary: "INFO"
+    startEnd: "INFO"
+    request: "INFO"
+    failedRecord: "ERROR"
+    pagination: "INFO"
+    error: "ERROR"
+    
+notifications:
+  # enabled valid values - true or false
+  # If false - no notification will be send using any method regardless of its enabled value
+  # If true - notification will be send using methods which has their enabled value is set to true
+  enabled: "true"
+  
+  email:
+    # Email notification will be send only if enabled is true here and notifications.enabled is true
+    enabled: "true"
+    # Replace with appropriate email addresses
+    from-address: "dipak2@gmail.com"
+    # SMTP Configurations
+    smtp: 
+      # Replace SMTP Host Name
+      host: "smtp.gmail.com"
+      # Replace SMTP Port
+      port: "587"
+      # Replace SMTP Username
+      user-name: "dipak2@gmail.com"
+      # Replace SMTP Password Token
+      password: "sgffjqtpiflhijka"
+
+  sms:
+    # SMS notification will be send only if enabled is true here and notifications.enabled is true
+    enabled: "false"
+    # from-number must be the phone number provided by Twilio - Replace with appropriate Twilio phone number
+    from-number: "+18776406169"
+    # Account configuration for Twilio SMS
+    twilio:
+      host: "https://api.twilio.com"
+      # Use account-sid as username - Replace with appropriate account id
+      account-sid: "AC6c568edfb0730ca65096cc25492959ce"
+      # Use auth-token as password - Replace with appropriate auth-token
+      auth-token: "770f87247ed2fbf2d85334fab7e7dde7"
+
+  slack:
+    # Slack notification will be send only if enabled is true here and notifications.enabled is true
+    enabled: "true"
+    # Use client-id as comsumer key - Replace with appropriate client-id
+    client-id: "4065284094.4838686586950"
+    # Use client-secret as comsumer secret - Replace with appropriate client-secret
+    client-secret: "a3cd7ad564399bf35fafc12fa21c2837"
+    auth-path: "/authorize"
+    auth-url: "https://slack.com/oauth/v2/authorize"
+    access-url: "https://slack.com/api/oauth.v2.access"
+    # Replace with appropriate environment
+    callback-path: "/callback"
+    callback-url: "https://localhost:8082/callback"
+    # Replace with appropriate Slack channel
+    channel: "error-notification"
+
+  anypoint-mq:
+    # Anypoint MQ notification will be send only if enabled is true here and notifications.enabled is true
+    enabled: "false"
+    # Replace AMQ Hostname 
+    host: "https://mq-us-east-1.anypoint.mulesoft.com/api/v1"
+    client-id: "Client Id overridden at deploy time"
+    client-secret: "Client Secret overridden at deploy time"
+    # Replace with appropriate destination
+    destination: "common-notification-exchange"
+

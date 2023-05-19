@@ -1,0 +1,12 @@
+#%RAML 1.0 NamedExample
+notification-example:
+  date: "2021-12-21T16:28:54.000Z"
+  notices:
+  - noticeType: "EmailNotice"
+    toAddress: "mail@example.com"
+    emailSubject: "WARN:DEV:Event notification"
+    emailBody: "Server memory consumption at 90% for the last 5 minutes"
+  - noticeType: "SmsNotice"
+    fromNumber: "18885551212"
+    toNumber: "19995551212"
+    message: "WARN:DEV:Server memory consumption at 90% for the last 5 minutes"
