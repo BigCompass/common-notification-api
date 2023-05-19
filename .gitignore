@@ -10,3 +10,6 @@ target/
 .eclipse
 /target/
 .DS_Store
+*.bak
+
+target/classes/properties/*.yaml
