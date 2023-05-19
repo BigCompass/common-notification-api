@@ -38,7 +38,7 @@ notifications:
 
   sms:
     # SMS notification will be send only if enabled is true here and notifications.enabled is true
-    enabled: "true"
+    enabled: "false"
     # from-number must be the phone number provided by Twilio - Replace with appropriate Twilio phone number
     from-number: "+18776406169"
     # Account configuration for Twilio SMS
